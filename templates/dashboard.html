@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="app-shell">
+    <aside class="sidebar">
+        <div>
+            <h1>PNEUSCAN</h1>
+            <p>PRECISION. INSIGHT. BREATH.</p>
+        </div>
+
+        <nav class="side-nav">
+            <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+            <a href="{{ url_for('upload') }}">Analyze X-Ray</a>
+            <a href="{{ url_for('history') }}">History</a>
+        </nav>
+
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </aside>
+
+    <main class="main-content">
+        <h2>Dashboard</h2>
+        <p class="subhead">Fast, accurate, and explainable chest X-ray analysis for clinicians</p>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div>
+                    <div class="stat-number">{{ total }}</div>
+                    <div class="stat-label">Total Analyses</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div>
+                    <div class="stat-number">{{ normal }}</div>
+                    <div class="stat-label">Normal</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🟠</div>
+                <div>
+                    <div class="stat-number">{{ pneumonia }}</div>
+                    <div class="stat-label">Pneumonia</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="action-grid">
+            <div class="panel-card">
+                <div class="panel-icon">⬆️</div>
+                <h3>Analyze X-Ray</h3>
+                <p>Upload chest X-ray images for pneumonia detection</p>
+                <a class="primary-btn inline" href="{{ url_for('upload') }}">Start Analysis</a>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-icon">📋</div>
+                <h3>Patient History</h3>
+                <p>View all past diagnoses and patient records</p>
+                <a class="primary-btn inline" href="{{ url_for('history') }}">View History</a>
+            </div>
+        </section>
+
+        <section class="recent-card">
+            <div class="section-head">
+                <h3>Recent Analyses</h3>
+            </div>
+
+            {% if recent %}
+                <div class="recent-list">
+                    {% for item in recent %}
+                        <div class="recent-row">
+                            <div>
+                                <strong>{{ item["status"] }}</strong>
+                                <div class="muted">{{ item["scan_time"] }} · {{ item["submitted_by"] }}</div>
+                            </div>
+                            <div>{{ item["confidence"] }}%</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-state">No analyses yet. Start by uploading an X-ray.</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

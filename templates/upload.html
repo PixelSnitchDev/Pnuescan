@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analyze X-Ray</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="app-shell">
+    <aside class="sidebar">
+        <div>
+            <h1>PNEUSCAN</h1>
+            <p>PRECISION. INSIGHT. BREATH.</p>
+        </div>
+
+        <nav class="side-nav">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('upload') }}" class="active">Analyze X-Ray</a>
+            <a href="{{ url_for('history') }}">History</a>
+        </nav>
+
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </aside>
+
+    <main class="main-content">
+        <h2>Analyze X-Ray</h2>
+        <p class="subhead">Upload a chest X-ray image for prediction</p>
+
+        <section class="form-card">
+            {% if error %}
+                <div class="error-box">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="upload-form">
+                <label for="patient_name">Patient Name</label>
+                <input type="text" id="patient_name" name="patient_name" required>
+
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" required>
+
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender" required>
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <label for="image">Select X-Ray Image</label>
+                <input type="file" id="image" name="image" accept=".png,.jpg,.jpeg,.bmp,.webp" required>
+
+                <button type="submit" class="primary-btn">Predict</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

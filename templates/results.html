@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="app-shell">
+    <aside class="sidebar">
+        <div>
+            <h1>PNEUSCAN</h1>
+            <p>PRECISION. INSIGHT. BREATH.</p>
+        </div>
+
+        <nav class="side-nav">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('upload') }}" class="active">Analyze X-Ray</a>
+            <a href="{{ url_for('history') }}">History</a>
+        </nav>
+
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </aside>
+
+    <main class="main-content">
+        <h2>Prediction Result</h2>
+        <p class="subhead">The model has completed analysis</p>
+
+        <section class="result-card">
+            <div class="result-badge">{{ result }}</div>
+            <p class="result-confidence">Confidence: {{ confidence }}%</p>
+
+            <div class="muted" style="margin-bottom: 18px;">
+                Case ID: {{ case_id }} · {{ patient_name }} · Age {{ age }} · {{ gender }} · {{ scan_time }}
+            </div>
+
+            {% if image_url %}
+                <div class="preview-box">
+                    <h3>Uploaded X-ray</h3>
+                    <img src="{{ image_url }}" alt="Uploaded X-ray">
+                </div>
+            {% endif %}
+
+            {% if heatmap_url %}
+                <div class="preview-box" style="margin-top: 20px;">
+                    <h3>Heat Map</h3>
+                    <img src="{{ heatmap_url }}" alt="Heat map">
+                </div>
+            {% endif %}
+
+            <div class="result-actions" style="margin-top: 20px;">
+                {% if report_url %}
+                    <a class="primary-btn inline" href="{{ report_url }}">Download PDF Report</a>
+                {% endif %}
+                <a class="secondary-btn inline" href="{{ url_for('upload') }}">Analyze Another</a>
+            </div>
+        </section>
+
+        {% if result == "PNEUMONIA" %}
+        <div class="history-card" style="margin-top: 24px;">
+            <h3>Hospital Guidance</h3>
+            <p>Nearby hospitals for follow-up care.</p>
+            <button class="primary-btn" onclick="findHospitals()">Find Nearest Hospital</button>
+            <div id="map" style="height: 500px; margin-top: 20px; border-radius: 16px; overflow: hidden;"></div>
+        </div>
+        {% endif %}
+    </main>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+    let map;
+
+    function findHospitals() {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by this browser.");
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(async function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            const response = await fetch("{{ url_for('nearest_hospitals') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ lat, lon })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            if (map) {
+                map.remove();
+            }
+
+            map = L.map("map").setView([lat, lon], 13);
+
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: "&copy; OpenStreetMap contributors"
+            }).addTo(map);
+
+            L.marker([lat, lon]).addTo(map).bindPopup("Patient location").openPopup();
+
+            data.hospitals.forEach(function(hospital) {
+                const marker = L.marker([hospital.lat, hospital.lon]).addTo(map);
+                marker.bindPopup(
+                    `<b>${hospital.name}</b><br>
+                     ${hospital.distance_km} km away<br><br>
+                     <a href="https://www.google.com/maps/dir/?api=1&origin=${lat},${lon}&destination=${hospital.lat},${hospital.lon}&travelmode=driving" target="_blank">
+                     🚗 Get Directions</a>`
+                );
+            });
+
+        }, function() {
+            alert("Location access denied or unavailable.");
+        });
+    }
+    </script>
+</body>
+</html>

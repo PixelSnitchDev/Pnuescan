@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.db
+static/uploads/
+static/heatmaps/
+reports/
+*.pth

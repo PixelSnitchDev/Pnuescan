@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="app-shell">
+    <aside class="sidebar">
+        <div>
+            <h1>PNEUSCAN</h1>
+            <p>PRECISION. INSIGHT. BREATH.</p>
+        </div>
+
+        <nav class="side-nav">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('upload') }}">Analyze X-Ray</a>
+            <a href="{{ url_for('history') }}" class="active">History</a>
+        </nav>
+
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </aside>
+
+    <main class="main-content">
+        <h2>Patient History</h2>
+        <p class="subhead">View all previous analyses</p>
+
+        <section class="history-card">
+            {% if history %}
+                {% for item in history %}
+                    <div class="history-row">
+                        <div class="history-left">
+                            <strong>{{ item["case_id"] }} · {{ item["status"] }}</strong>
+                            <div class="muted">{{ item["patient_name"] }} · Age {{ item["age"] }} · {{ item["gender"] }}</div>
+                            <div class="muted">{{ item["scan_time"] }} · {{ item["submitted_by"] }}</div>
+                            <div class="muted">Confidence: {{ item["confidence"] }}%</div>
+                            {% if item["report_path"] %}
+                                <div style="margin-top: 8px;">
+                                    <a href="{{ url_for('download_report', scan_id=item['id']) }}">Download report</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-state">No patient history yet.</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
