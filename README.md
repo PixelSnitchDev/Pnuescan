@@ -14,12 +14,14 @@ PneuScan analyzes chest X-ray images using a trained ResNet18 CNN model, generat
 ## Features
 
 - Chest X-ray classification as Normal or Pneumonia using ResNet18
-- Grad-CAM heatmap visualization highlighting regions of interest
 - Nearest hospital finder using Overpass API and Leaflet.js maps
 - Automated PDF report generation for each scan
 - Patient history dashboard to track previous results
 - Login system with structured web interface
 - SQLite database for storing patient scan history
+## Known Limitations
+
+- Heatmaps are generated using Grad-CAM based on model gradients but do not precisely highlight pneumonia regions due to the absence of a segmentation-annotated dataset. A pixel-level annotated dataset would significantly improve heatmap accuracy.
 
 ## Model Performance
 
